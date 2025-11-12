@@ -8,28 +8,14 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# --- Flask-Mail Configuration: Using Port 465 (SSL) ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465 
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True 
 
-# --- Securely load credentials from the environment (from your .env file) ---
-MAIL_USER = os.environ.get('MAIL_USERNAME')
-MAIL_PASS = os.environ.get('MAIL_PASSWORD')
-
-app.config['MAIL_USERNAME'] = MAIL_USER
-app.config['MAIL_PASSWORD'] = MAIL_PASS
-app.config['MAIL_DEFAULT_SENDER'] = MAIL_USER
-
-# --- DEBUG LINE ADDED ---
-# This line will confirm that the variables are loaded from Render.
-# The password must be 16 characters long.
-if MAIL_USER and MAIL_PASS:
-    print(f"DEBUG: Mail User Check: {MAIL_USER[:3]}... | Pass Length: {len(MAIL_PASS)}")
-else:
-    print("DEBUG: MAIL_USERNAME or MAIL_PASSWORD not loaded!")
-# -------------------------
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
 mail = Mail(app)
 
@@ -37,19 +23,25 @@ mail = Mail(app)
 
 @app.route('/')
 def index():
+    # Renders your main HTML template (e.g., index.html)
     return render_template('index.html') 
 
+# The form will submit to this endpoint
 @app.route('/contact', methods=['POST'])
 def handle_contact_form():
     
+    # 1. Capture the form data
     name = request.form.get('fullname')
     email = request.form.get('email')
     subject = request.form.get('subject') 
     message_body = request.form.get('message')
     
+    # Check if a subject was captured, if not, create a default one
     if not subject:
         subject = f"New message from {name}"
 
+    # 2. Build the email content
+    # Recipient is hardcoded to your desired email address: ravidrave4@gmail.com
     msg = Message(
         subject=f'[PORTFOLIO QUERY] {subject}',
         recipients=['ravidrave4@gmail.com'], 
@@ -66,15 +58,18 @@ Message:
 """
     )
 
+    # 3. Send the email
     try:
         mail.send(msg)
         print("Success: Email sent!")
     except Exception as e:
-        # If this exception fires, the error is an authentication/login failure (password/username is wrong).
-        # We need the full output of this exception printout.
-        print(f"ERROR: Final attempt failed. Error details: {e}")
-        return "An internal server error occurred while sending the message.", 500
+        # This will print the exact error to your Render logs
+        print(f"ERROR: Email failed to send. Check MAIL_USERNAME/MAIL_PASSWORD. Error: {e}")
+        # Return a 500 status on failure to the user
+        return "An internal server error occurred while sending the message. Please check server logs.", 500
 
+    # 4. Redirect the user after submission
+    # Redirects them back to the main page or contact page.
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
