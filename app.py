@@ -11,20 +11,16 @@ from flask_mail import Mail, Message
 app = Flask(__name__)
 
 # --- Flask-Mail Configuration ---
-# You need to replace the placeholder password with your generated App Password.
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'ravidrave4@gmail.com' # Your sender email address
-app.config['MAIL_PASSWORD'] = 'lxxe ssnr noon gfed' # <-- REPLACE THIS!
+app.config['MAIL_USERNAME'] = 'ravidrave4@gmail.com' 
+app.config['MAIL_PASSWORD'] = 'lxxe ssnr noon gfed'
 app.config['MAIL_DEFAULT_SENDER'] = 'ravidrave4@gmail.com'
 
 mail = Mail(app)
 
 
-# ... (continue in app.py after the configuration)
-
-# The form will submit to this endpoint
 @app.route('/contact', methods=['POST'])
 def handle_contact_form():
     
@@ -34,12 +30,8 @@ def handle_contact_form():
     subject = request.form.get('subject') # You'll need to check your HTML for the subject field
     message_body = request.form.get('message')
     
-    # Check if a subject was captured (it might be missing based on your screenshot's fields)
     if not subject:
-        subject = f"New message from {name}" # Default subject if field is missing
-
-    # 2. Build the email content
-    # We set the recipient to the email you want the queries to go to.
+        subject = f"New message from {name}"
     msg = Message(
         subject=f'[PORTFOLIO QUERY] {subject}',
         recipients=['ravidrave4@gmail.com'], # <-- The destination email
@@ -68,12 +60,9 @@ Message:
     # We redirect them back to the main page or contact page.
     return redirect(url_for('index')) # Redirects to the root page ('/')
 
-# --- Standard Flask Routes ---
-
 @app.route('/')
 def index():
-    # Renders your main HTML template (e.g., index.html)
-    return render_template('Index.html')
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
