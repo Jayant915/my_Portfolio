@@ -8,11 +8,16 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# --- Flask-Mail Configuration ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
+# CRITICAL FIX for Render deployment: Explicitly set SSL to False to resolve 
+# the SMTP connection timeout error when using TLS on port 587.
+app.config['MAIL_USE_SSL'] = False 
 
 # --- Securely load credentials from the environment (from your .env file) ---
+# These must match the Environment Variables set in the Render Dashboard exactly.
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
@@ -23,7 +28,7 @@ mail = Mail(app)
 
 @app.route('/')
 def index():
-    # Renders your main HTML template (e.g., index.html)
+    # FIXED: Ensure template name is all lowercase to match the file system (index.html)
     return render_template('index.html') 
 
 # The form will submit to this endpoint
@@ -33,7 +38,6 @@ def handle_contact_form():
     # 1. Capture the form data
     name = request.form.get('fullname')
     email = request.form.get('email')
-    # Using the name 'subject' from the hidden input field we added to the HTML
     subject = request.form.get('subject') 
     message_body = request.form.get('message')
     
@@ -64,8 +68,10 @@ Message:
         mail.send(msg)
         print("Success: Email sent!")
     except Exception as e:
-        # This will print the exact error if the email fails (e.g., bad password)
+        # This will print the exact error to your Render logs
         print(f"ERROR: Email failed to send. Check MAIL_USERNAME/MAIL_PASSWORD. Error: {e}")
+        # Return a 500 status on failure to the user
+        return "An internal server error occurred while sending the message. Please check server logs.", 500
 
     # 4. Redirect the user after submission
     # Redirects them back to the main page or contact page.
@@ -73,6 +79,3 @@ Message:
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-    #updated code
