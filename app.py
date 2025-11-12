@@ -8,16 +8,11 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# --- Flask-Mail Configuration ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-# CRITICAL FIX for Render deployment: Explicitly set SSL to False to resolve 
-# the SMTP connection timeout error when using TLS on port 587.
-app.config['MAIL_USE_SSL'] = False 
+app.config['MAIL_PORT'] = 465 
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True 
 
-# --- Securely load credentials from the environment (from your .env file) ---
-# These must match the Environment Variables set in the Render Dashboard exactly.
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
@@ -28,7 +23,7 @@ mail = Mail(app)
 
 @app.route('/')
 def index():
-    # FIXED: Ensure template name is all lowercase to match the file system (index.html)
+    # Renders your main HTML template (e.g., index.html)
     return render_template('index.html') 
 
 # The form will submit to this endpoint
