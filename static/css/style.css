@@ -1878,3 +1878,52 @@ textarea.form-input::-webkit-resizer { display: none; }
   transform: scale(1.2);
   filter: none; /* show original colors on hover */
 }
+
+/* Modal Container */
+.modal-container {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  z-index: 20;
+}
+
+/* Show when active */
+.modal-container.active {
+  display: grid;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+.testimonials-modal {
+  background: var(--bg-color, #1a1a1a);
+  color: #fff;
+  max-width: 600px;
+  width: 90%;
+  padding: 2rem;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  animation: pop-in 0.3s ease;
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
